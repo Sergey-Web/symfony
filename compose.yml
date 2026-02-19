@@ -1,0 +1,75 @@
+services:
+  nginx:
+    build: docker/dev/nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./api:/app
+    depends_on:
+      php-fpm:
+        condition: service_started
+
+  php-fpm:
+    build: docker/dev/php-fpm
+    restart: unless-stopped
+    volumes:
+      - ./api:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  php-cli:
+    build: docker/dev/php-cli
+    user: "1000:1000"
+    volumes:
+      - ./api:/app
+      - composer:/root/.composer/cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  postgres:
+    image: postgres:18.2
+    restart: unless-stopped
+    ports:
+      - "54321:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1 -p 5432" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:8.6
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  postgres_data:
+  redis_data:
+  composer:
