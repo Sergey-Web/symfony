@@ -14,3 +14,9 @@ composer:
 
 php: ## Run the command in the PHP container
 	$(DOCKER_COMPOSE) exec php-fpm bash
+
+symfony-console:
+	$(DOCKER_COMPOSE) run --rm php-cli php bin/console $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@:
