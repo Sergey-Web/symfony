@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\User\Application\Command\SignUp\Request;
 
 use App\User\Domain\Entity\User;
+use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
 use App\User\Domain\Service\PasswordHasher;
+use App\User\Domain\Service\SignUpConfirmationSender;
 use App\User\Domain\ValueObject\Email;
+use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\UserId;
 use DateTimeImmutable;
 use DomainException;
@@ -18,7 +21,8 @@ final readonly class Handler
     public function __construct(
         private UserRepository $userRepository,
         private PasswordHasher $passwordHasher,
-        private Flusher $flusher
+        private Flusher $flusher,
+        private SignUpConfirmationSender $signUpConfirmationSender,
     ) {
     }
 
@@ -30,16 +34,24 @@ final readonly class Handler
             throw new DomainException('Email already exists.');
         }
 
+        $signUpToken = ConfirmToken::generate();
+
         $user = new User(
             id: UserId::next(),
             email: $email,
             hash: $this->passwordHasher->hash($command->password),
             date: new DateTimeImmutable(),
+            signUpToken: $signUpToken,
+            status: UserStatus::Wait,
         );
 
         $this->userRepository->add($user);
 
         $this->flusher->flush();
 
+        $this->signUpConfirmationSender->send(
+            $email,
+            $signUpToken,
+        );
     }
 }

@@ -6,6 +6,7 @@ namespace App\User\Infrastructure;
 
 use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepository;
+use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\UserId;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,5 +35,12 @@ final readonly class DoctrineUserRepository implements UserRepository
     public function findByUserId(UserId $userId): ?User
     {
         return $this->em->getRepository(User::class)->find($userId->value);
+    }
+
+    public function findByConfirmToken(ConfirmToken $confirmToken): ?User
+    {
+        return $this->em->getRepository(User::class)->findOneBy([
+            'confirm_token' => $confirmToken->value,
+        ]);
     }
 }
