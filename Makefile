@@ -20,3 +20,6 @@ symfony-console:
 
 %:
 	@:
+
+test:
+	$(DOCKER_COMPOSE) run --rm php-cli php bin/phpunit
