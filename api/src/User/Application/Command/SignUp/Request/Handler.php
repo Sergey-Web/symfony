@@ -6,8 +6,12 @@ namespace App\User\Application\Command\SignUp\Request;
 
 use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepository;
+use App\User\Domain\Service\Flusher;
+use App\User\Domain\Service\PasswordHasher;
 use App\User\Domain\ValueObject\Email;
-use App\User\Infrastructure\Flusher;
+use App\User\Domain\ValueObject\UserId;
+use DateTimeImmutable;
+use DomainException;
 
 final readonly class Handler
 {
@@ -22,13 +26,20 @@ final readonly class Handler
     {
         $email = new Email($command->email);
 
-        if ($this->userRepository->hasByEmail($email)) {
-            throw new \DomainException('Email already exists.');
+        if ($this->userRepository->existsByEmail($email)) {
+            throw new DomainException('Email already exists.');
         }
 
         $user = new User(
-
+            id: UserId::next(),
+            email: $email,
+            hash: $this->passwordHasher->hash($command->password),
+            date: new DateTimeImmutable(),
         );
+
+        $this->userRepository->add($user);
+
+        $this->flusher->flush();
 
     }
 }

@@ -7,17 +7,17 @@ namespace App\User\Domain\ValueObject;
 use DomainException;
 use Ramsey\Uuid\Uuid;
 
-final readonly class Id
+final readonly class UserId
 {
-    private string $value;
+    private(set) string $value;
 
     private function __construct(string $value)
     {
         if (!Uuid::isValid($value)) {
-            throw new DomainException('Invalid Id.');
+            throw new DomainException('Invalid UserId.');
         }
 
-        $this->value = $value;
+        $this->value = mb_strtolower($value);
     }
 
     public static function next(): self
@@ -28,10 +28,5 @@ final readonly class Id
     public static function fromString(string $value): self
     {
         return new self($value);
-    }
-
-    public function value(): string
-    {
-        return $this->value;
     }
 }

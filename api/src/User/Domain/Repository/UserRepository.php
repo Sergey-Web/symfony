@@ -6,12 +6,15 @@ namespace App\User\Domain\Repository;
 
 use App\User\Domain\Entity\User;
 use App\User\Domain\ValueObject\Email;
+use App\User\Domain\ValueObject\UserId;
 
 interface UserRepository
 {
-    public function hasByEmail(Email $email): bool;
+    public function findByEmail(Email $email): ?User;
 
-    public function findByEmail(string $email): ?User;
+    public function findByUserId(UserId $userId): ?User;
 
     public function add(User $user): void;
+
+    public function existsByEmail(Email $email): bool;
 }

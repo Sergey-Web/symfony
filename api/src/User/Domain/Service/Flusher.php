@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Domain\Service;
 
-interface UuidGenerator
+interface Flusher
 {
-    public function generate(): string;
+    public function flush(): void;
 }

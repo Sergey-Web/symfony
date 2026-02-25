@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace App\User\Domain\Service;
 
-final class PasswordHasher
+interface PasswordHasher
 {
-    public function hash(string $password): string
-    {
-        return password_hash($password, PASSWORD_DEFAULT);
-    }
+    public function hash(string $password): string;
 
-    public function verify(string $password, string $hash): bool
-    {
-        return password_verify($password, $hash);
-    }
+    public function verify(string $password, string $hash): bool;
 }
