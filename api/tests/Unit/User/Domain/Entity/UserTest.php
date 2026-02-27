@@ -9,6 +9,7 @@ use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\UserId;
+use App\User\Infrastructure\Security\NativePasswordHasher;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +19,8 @@ class UserTest extends TestCase
     {
         $id = UserId::next();
         $email = new Email('test@example.com');
-        $hash = 'HASH';
+        $password = 'password';
+        $hash = new NativePasswordHasher()->hash($password);
         $date = new DateTimeImmutable();
         $token = ConfirmToken::generate();
 
@@ -26,6 +28,10 @@ class UserTest extends TestCase
 
         self::assertTrue($user->status === UserStatus::Wait);
         self::assertFalse($user->status === UserStatus::Active);
+
+        self::assertFalse(new NativePasswordHasher()->verify($password . ' ', $hash));
+        self::assertTrue(new NativePasswordHasher()->verify($password, $hash));
+        self::assertNotSame(new NativePasswordHasher()->hash($password), $hash);
 
         self::assertSame($id, $user->id);
         self::assertSame($email, $user->email);

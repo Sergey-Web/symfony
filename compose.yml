@@ -15,6 +15,9 @@ services:
     restart: unless-stopped
     volumes:
       - ./api:/app
+      - ./docker/dev/php/conf.d/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    environment:
+      PHP_IDE_CONFIG: "serverName=docker"
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,7 +31,10 @@ services:
     user: "1000:1000"
     volumes:
       - ./api:/app
+      - ./docker/dev/php/conf.d/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - composer:/root/.composer/cache
+    environment:
+      PHP_IDE_CONFIG: "serverName=docker"
     depends_on:
       postgres:
         condition: service_healthy

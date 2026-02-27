@@ -13,7 +13,7 @@ composer:
 	$(DOCKER_COMPOSE) run --rm php-cli $(MAKECMDGOALS)
 
 php: ## Run the command in the PHP container
-	$(DOCKER_COMPOSE) exec php-fpm bash
+	$(DOCKER_COMPOSE) exec php-fpm bash || true
 
 symfony-console:
 	$(DOCKER_COMPOSE) run --rm php-cli php bin/console $(filter-out $@,$(MAKECMDGOALS))
@@ -23,3 +23,11 @@ symfony-console:
 
 test:
 	$(DOCKER_COMPOSE) run --rm php-cli php bin/phpunit
+
+xdebug-on:
+	echo "zend_extension=xdebug" > docker/dev/php/conf.d/docker-php-ext-xdebug.ini
+	docker compose restart php-fpm php-cli
+
+xdebug-off:
+	echo "; xdebug disabled" > docker/dev/php/conf.d/docker-php-ext-xdebug.ini
+	docker compose restart php-fpm php-cli

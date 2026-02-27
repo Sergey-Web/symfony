@@ -23,31 +23,31 @@ class HandlerTest extends TestCase
     {
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
+        $token = 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110';
 
-        $command = new Command(confirmToken: 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110');
-        $user = $this->makeUser(UserStatus::Wait);
+        $user = $this->makeUser();
+        $confirmToken = ConfirmToken::fromString($token);
 
         $userRepository->expects(self::once())
             ->method('findByConfirmToken')
-            ->with(self::callback(static function (ConfirmToken $confirmToken) use ($command): bool {
-                return $confirmToken->value === $command->confirmToken;
-            }))
+            ->with($confirmToken)
             ->willReturn($user);
 
         $flusher->expects(self::once())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
+        $command = new Command($token);
+
         $handler->handle($command);
 
         self::assertSame(UserStatus::Active, $user->status);
     }
 
-    public function testUserNotFound(): void
+    public function testTokenNotFound(): void
     {
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
-
-        $command = new Command(confirmToken: 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110');
+        $token = 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110';
 
         $userRepository->expects(self::once())
             ->method('findByConfirmToken')
@@ -56,6 +56,7 @@ class HandlerTest extends TestCase
         $flusher->expects(self::never())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
+        $command = new Command($token);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('User with confirm token "f2d49cd8-72e2-4d76-a8f5-6fd7a893f110" not found');
@@ -67,13 +68,13 @@ class HandlerTest extends TestCase
     {
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
-
-        $command = new Command(confirmToken: 'invalid-token');
+        $token = 'invalid-token';
 
         $userRepository->expects(self::never())->method('findByConfirmToken');
         $flusher->expects(self::never())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
+        $command = new Command($token);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid ConfirmToken.');
@@ -85,17 +86,28 @@ class HandlerTest extends TestCase
     {
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
+        $token = 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110';
 
-        $command = new Command(confirmToken: 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110');
-        $user = $this->makeUser(UserStatus::Active);
+        $user = new User(
+            UserId::next(),
+            new Email('test@example.com'),
+            'HASHED',
+            new DateTimeImmutable(),
+            ConfirmToken::generate(),
+            UserStatus::Active,
+        );
+
+        $confirmToken = ConfirmToken::fromString($token);
 
         $userRepository->expects(self::once())
             ->method('findByConfirmToken')
+            ->with($confirmToken)
             ->willReturn($user);
 
         $flusher->expects(self::never())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
+        $command = new Command($token);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('User already confirmed.');
@@ -103,7 +115,7 @@ class HandlerTest extends TestCase
         $handler->handle($command);
     }
 
-    private function makeUser(UserStatus $status): User
+    private function makeUser(): User
     {
         return new User(
             UserId::next(),
@@ -111,7 +123,6 @@ class HandlerTest extends TestCase
             'HASHED',
             new DateTimeImmutable(),
             ConfirmToken::generate(),
-            $status,
         );
     }
 }

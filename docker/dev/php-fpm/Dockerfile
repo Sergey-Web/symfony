@@ -12,7 +12,7 @@ RUN set -eux; \
   pecl install redis; \
   docker-php-ext-enable redis; \
   pecl install xdebug; \
-  docker-php-ext-enable xdebug; \
+#  docker-php-ext-enable xdebug; \
   rm -rf /tmp/pear; \
   apk del .build-deps
 
