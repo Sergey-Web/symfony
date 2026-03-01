@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\User\Application\Command\Confirm;
+namespace App\User\Application\Command\ConfirmEmail;
 
 final readonly class Command
 {

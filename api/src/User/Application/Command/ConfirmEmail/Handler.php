@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\User\Application\Command\Confirm;
+namespace App\User\Application\Command\ConfirmEmail;
 
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;

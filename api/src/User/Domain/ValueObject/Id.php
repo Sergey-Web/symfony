@@ -7,7 +7,7 @@ namespace App\User\Domain\ValueObject;
 use DomainException;
 use Ramsey\Uuid\Uuid;
 
-final readonly class UserId
+final readonly class Id
 {
     private(set) string $value;
 

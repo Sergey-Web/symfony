@@ -7,8 +7,7 @@ namespace App\Tests\Unit\User\Domain\Entity;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\ValueObject\Email;
-use App\User\Domain\ValueObject\ConfirmToken;
-use App\User\Domain\ValueObject\UserId;
+use App\User\Domain\ValueObject\Name;
 use App\User\Infrastructure\Security\NativePasswordHasher;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -17,14 +16,13 @@ class UserTest extends TestCase
 {
     public function testUserIsCreated(): void
     {
-        $id = UserId::next();
         $email = new Email('test@example.com');
+        $name = new Name('John', 'Doe');
         $password = 'password';
         $hash = new NativePasswordHasher()->hash($password);
         $date = new DateTimeImmutable();
-        $token = ConfirmToken::generate();
 
-        $user = new User($id, $email, $hash, $date, $token);
+        $user = User::signUpByEmail($email, $name, $hash, $date);
 
         self::assertTrue($user->status === UserStatus::Wait);
         self::assertFalse($user->status === UserStatus::Active);
@@ -33,10 +31,8 @@ class UserTest extends TestCase
         self::assertTrue(new NativePasswordHasher()->verify($password, $hash));
         self::assertNotSame(new NativePasswordHasher()->hash($password), $hash);
 
-        self::assertSame($id, $user->id);
         self::assertSame($email, $user->email);
         self::assertSame($hash, $user->hash);
-        self::assertSame($date, $user->date);
-        self::assertSame($token, $user->signUpToken);
+        self::assertSame($date, $user->createdAt);
     }
 }

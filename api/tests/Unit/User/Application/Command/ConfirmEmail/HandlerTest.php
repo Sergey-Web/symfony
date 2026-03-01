@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\User\Application\Command\Confirm;
+namespace App\Tests\Unit\User\Application\Command\ConfirmEmail;
 
-use App\User\Application\Command\Confirm\Command;
-use App\User\Application\Command\Confirm\Handler;
+use App\User\Application\Command\ConfirmEmail\Command;
+use App\User\Application\Command\ConfirmEmail\Handler;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
-use App\User\Domain\ValueObject\UserId;
+use App\User\Domain\ValueObject\Id;
+use App\User\Domain\ValueObject\Name;
 use DateTimeImmutable;
 use DomainException;
 use PHPUnit\Framework\TestCase;
@@ -88,14 +89,8 @@ class HandlerTest extends TestCase
         $flusher = $this->createMock(Flusher::class);
         $token = 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110';
 
-        $user = new User(
-            UserId::next(),
-            new Email('test@example.com'),
-            'HASHED',
-            new DateTimeImmutable(),
-            ConfirmToken::generate(),
-            UserStatus::Active,
-        );
+        $user = $this->makeUser();
+        $user->confirmSignUp();;
 
         $confirmToken = ConfirmToken::fromString($token);
 
@@ -117,12 +112,11 @@ class HandlerTest extends TestCase
 
     private function makeUser(): User
     {
-        return new User(
-            UserId::next(),
-            new Email('test@example.com'),
-            'HASHED',
-            new DateTimeImmutable(),
-            ConfirmToken::generate(),
+        return User::signUpByEmail(
+            email: new Email('test@example.com'),
+            name: new Name('John', 'Doe'),
+            hash: 'HASHED',
+            createdAt: new DateTimeImmutable(),
         );
     }
 }

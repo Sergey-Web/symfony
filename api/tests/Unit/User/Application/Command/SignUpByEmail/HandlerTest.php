@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\User\Application\Command\SignUpByEmail;
 
-use App\User\Application\Command\SignUp\Request\Command;
-use App\User\Application\Command\SignUp\Request\Handler;
+use App\User\Application\Command\SignUpByEmail\Command;
+use App\User\Application\Command\SignUpByEmail\Handler;
 use App\User\Domain\Entity\User;
-use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
-use App\User\Domain\Service\PasswordHasher;
 use App\User\Domain\Service\SignUpConfirmationSender;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
-use App\User\Domain\ValueObject\UserId;
 use App\User\Infrastructure\Security\NativePasswordHasher;
-use DateTimeImmutable;
 use DomainException;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -28,7 +24,7 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $signUpConfirmationSender = $this->createMock(SignUpConfirmationSender::class);
-        $command = new Command(email: 'test@example.com', password: 'secret');
+        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'secret');
 
         $userRepository->expects(self::once())
             ->method('existsByEmail')
@@ -57,7 +53,7 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $signUpConfirmationSender = $this->createMock(SignUpConfirmationSender::class);
-        $command = new Command(email: 'test@example.com', password: 'secret');
+        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'secret');
 
         $userRepository->expects(self::once())
             ->method('existsByEmail')
@@ -88,7 +84,7 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $signUpConfirmationSender = $this->createMock(SignUpConfirmationSender::class);
-        $command = new Command(email: 'test@example', password: 'secret');
+        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example', password: 'secret');
 
         $userRepository->expects(self::never())
             ->method('existsByEmail')

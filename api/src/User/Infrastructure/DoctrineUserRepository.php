@@ -8,7 +8,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
-use App\User\Domain\ValueObject\UserId;
+use App\User\Domain\ValueObject\Id;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class DoctrineUserRepository implements UserRepository
@@ -32,7 +32,7 @@ final readonly class DoctrineUserRepository implements UserRepository
         return $this->findByEmail($email) !== null;
     }
 
-    public function findByUserId(UserId $userId): ?User
+    public function findByUserId(Id $userId): ?User
     {
         return $this->em->getRepository(User::class)->find($userId->value);
     }
