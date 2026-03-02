@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\User\Application\Command\SignUpByEmail;
+namespace App\Tests\Unit\User\Application\Command\SignUp\Email;
 
-use App\User\Application\Command\SignUpByEmail\Command;
-use App\User\Application\Command\SignUpByEmail\Handler;
+use App\User\Application\Command\SignUp\Email\Command;
+use App\User\Application\Command\SignUp\Email\Handler;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;

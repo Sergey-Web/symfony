@@ -4,32 +4,29 @@ declare(strict_types=1);
 
 namespace App\User\Domain\ValueObject;
 
-use DomainException;
+use Webmozart\Assert\Assert;
+use Doctrine\ORM\Mapping as ORM;
 
 final readonly class Name
 {
+    #[ORM\Column(name: 'first_name', nullable: false)]
     public string $firstName;
 
-    public string $lastName;
+    #[ORM\Column(name: 'last_name', nullable: true)]
+    public ?string $lastName;
 
     public function __construct(
         string $firstName,
-        string $lastName
+        ?string $lastName
     ) {
-        $this->firstName = $this->guard($firstName);
-        $this->lastName = $this->guard($lastName);
-    }
+        Assert::notEmpty($firstName);
+        Assert::lengthBetween($firstName, 2, 50);
 
-    private function guard(string $value): string
-    {
-        $value = trim($value);
-
-        if (!preg_match('/^[A-Za-z]{2,20}$/', $value)) {
-            throw new DomainException(
-                'Name must contain only latin letters and be 2-20 characters long.'
-            );
+        if ($lastName !== null && $lastName !== '') {
+            Assert::lengthBetween($lastName, 2, 50);
         }
 
-        return $value;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
     }
 }

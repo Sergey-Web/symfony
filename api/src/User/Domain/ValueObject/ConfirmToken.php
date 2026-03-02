@@ -6,18 +6,20 @@ namespace App\User\Domain\ValueObject;
 
 use DomainException;
 use Ramsey\Uuid\Uuid;
+use Doctrine\ORM\Mapping as ORM;
 
 final readonly class ConfirmToken
 {
-    private(set) string $value;
+    #[ORM\Column(name: 'confirm_token', type: 'string', unique: true)]
+    public string $value;
 
-    private function __construct(string $token)
+    private function __construct(string $value)
     {
-        if (!Uuid::isValid($token)) {
+        if (!Uuid::isValid($value)) {
             throw new DomainException('Invalid ConfirmToken.');
         }
 
-        $this->value = $token;
+        $this->value = $value;
     }
 
     public static function generate(): self

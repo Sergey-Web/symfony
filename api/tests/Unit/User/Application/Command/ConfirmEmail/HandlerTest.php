@@ -25,19 +25,21 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $token = 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110';
+        $userIdentity = 'f2d49cd8-22e2-4d76-a8f5-6fd7a893f222';
+        $userId = Id::fromString($userIdentity);
 
-        $user = $this->makeUser();
         $confirmToken = ConfirmToken::fromString($token);
+        $user = $this->makeUser($confirmToken, $userId);
 
         $userRepository->expects(self::once())
-            ->method('findByConfirmToken')
-            ->with($confirmToken)
+            ->method('findByUserId')
+            ->with($userId)
             ->willReturn($user);
 
         $flusher->expects(self::once())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
-        $command = new Command($token);
+        $command = new Command($userIdentity, $token);
 
         $handler->handle($command);
 
@@ -49,15 +51,16 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $token = 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110';
+        $userIdentity = 'f2d49cd8-22e2-4d76-a8f5-6fd7a893f222';
 
         $userRepository->expects(self::once())
-            ->method('findByConfirmToken')
+            ->method('findByUserId')
             ->willReturn(null);
 
         $flusher->expects(self::never())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
-        $command = new Command($token);
+        $command = new Command($userIdentity, $token);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('User with confirm token "f2d49cd8-72e2-4d76-a8f5-6fd7a893f110" not found');
@@ -70,12 +73,13 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $token = 'invalid-token';
+        $userId = 'f2d49cd8-22e2-4d76-a8f5-6fd7a893f222';
 
-        $userRepository->expects(self::never())->method('findByConfirmToken');
+        $userRepository->expects(self::never())->method('findByUserId');
         $flusher->expects(self::never())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
-        $command = new Command($token);
+        $command = new Command($userId, $token);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid ConfirmToken.');
@@ -88,21 +92,22 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $token = 'f2d49cd8-72e2-4d76-a8f5-6fd7a893f110';
-
-        $user = $this->makeUser();
-        $user->confirmSignUp();;
+        $userIdentity = 'f2d49cd8-22e2-4d76-a8f5-6fd7a893f222';
+        $userId = Id::fromString($userIdentity);
 
         $confirmToken = ConfirmToken::fromString($token);
+        $user = $this->makeUser($confirmToken, $userId);
+        $user->confirmSignUp(ConfirmToken::fromString($token));
 
         $userRepository->expects(self::once())
-            ->method('findByConfirmToken')
-            ->with($confirmToken)
+            ->method('findByUserId')
+            ->with($userId)
             ->willReturn($user);
 
         $flusher->expects(self::never())->method('flush');
 
         $handler = new Handler($userRepository, $flusher);
-        $command = new Command($token);
+        $command = new Command($userIdentity, $token);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('User already confirmed.');
@@ -110,11 +115,13 @@ class HandlerTest extends TestCase
         $handler->handle($command);
     }
 
-    private function makeUser(): User
+    private function makeUser(ConfirmToken $confirmToken, Id $userId): User
     {
         return User::signUpByEmail(
+            id: $userId,
             email: new Email('test@example.com'),
             name: new Name('John', 'Doe'),
+            confirmToken: $confirmToken,
             hash: 'HASHED',
             createdAt: new DateTimeImmutable(),
         );

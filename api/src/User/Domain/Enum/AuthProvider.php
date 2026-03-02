@@ -7,4 +7,5 @@ namespace App\User\Domain\Enum;
 enum AuthProvider: string
 {
     case Google = 'google';
+    case Telegram = 'telegram';
 }
