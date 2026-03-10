@@ -9,7 +9,7 @@ use Ramsey\Uuid\Uuid;
 
 final readonly class Id
 {
-    private(set) string $value;
+    public string $value;
 
     private function __construct(string $value)
     {

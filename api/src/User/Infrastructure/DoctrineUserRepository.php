@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\User\Infrastructure;
 
 use App\User\Domain\Entity\User;
+use App\User\Domain\Entity\UserAuthAccount;
+use App\User\Domain\Enum\ExternalProvider;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
@@ -42,5 +44,13 @@ final readonly class DoctrineUserRepository implements UserRepository
         return $this->em->getRepository(User::class)->findOneBy([
             'confirm_token' => $confirmToken->value,
         ]);
+    }
+
+    public function existsByAuthProvider(ExternalProvider $provider, string $externalId): bool
+    {
+        return $this->em->getRepository(UserAuthAccount::class)->findOneBy([
+            'provider' => $provider->value,
+            'external_id' => $externalId,
+        ]) !== null;
     }
 }

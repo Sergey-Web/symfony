@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\User\Application\Command\SignUpByEmail;
+namespace App\Tests\Unit\User\Application\Command\SignUp\Email;
 
-use App\User\Application\Command\SignUpByEmail\Command;
-use App\User\Application\Command\SignUpByEmail\Handler;
+use App\User\Application\Command\SignUp\Email\Command;
+use App\User\Application\Command\SignUp\Email\Handler;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
@@ -24,7 +24,7 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $signUpConfirmationSender = $this->createMock(SignUpConfirmationSender::class);
-        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'secret');
+        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'secret12345');
 
         $userRepository->expects(self::once())
             ->method('existsByEmail')
@@ -44,7 +44,7 @@ class HandlerTest extends TestCase
                 self::isInstanceOf(ConfirmToken::class)
             );
 
-        $handler = new Handler($userRepository, new NativePasswordHasher(), $flusher, $signUpConfirmationSender);
+        $handler = new Handler($userRepository, $flusher, $signUpConfirmationSender);
         $handler->handle($command);
     }
 
@@ -53,7 +53,7 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $signUpConfirmationSender = $this->createMock(SignUpConfirmationSender::class);
-        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'secret');
+        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example.com', password: 'secret12345');
 
         $userRepository->expects(self::once())
             ->method('existsByEmail')
@@ -71,7 +71,7 @@ class HandlerTest extends TestCase
                 self::isInstanceOf(ConfirmToken::class)
             );
 
-        $handler = new Handler($userRepository, new NativePasswordHasher(), $flusher, $signUpConfirmationSender);
+        $handler = new Handler($userRepository, $flusher, $signUpConfirmationSender);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Email already exists.');
@@ -84,7 +84,7 @@ class HandlerTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $flusher = $this->createMock(Flusher::class);
         $signUpConfirmationSender = $this->createMock(SignUpConfirmationSender::class);
-        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example', password: 'secret');
+        $command = new Command(firstName: 'John', lastName: 'Doe', email: 'test@example', password: 'secret12345');
 
         $userRepository->expects(self::never())
             ->method('existsByEmail')
@@ -101,7 +101,7 @@ class HandlerTest extends TestCase
                 self::isInstanceOf(ConfirmToken::class)
             );
 
-        $handler = new Handler($userRepository, new NativePasswordHasher(), $flusher, $signUpConfirmationSender);
+        $handler = new Handler($userRepository, $flusher, $signUpConfirmationSender);
 
         $this->expectException(InvalidArgumentException::class);
 
