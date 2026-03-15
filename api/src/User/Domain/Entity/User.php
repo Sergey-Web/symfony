@@ -12,6 +12,7 @@ use App\User\Domain\ValueObject\Name;
 use App\User\Domain\ValueObject\Id;
 use App\User\Domain\ValueObject\Password;
 use App\User\Domain\ValueObject\ResetToken;
+use DateMalformedStringException;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use DomainException;
@@ -134,6 +135,10 @@ final class User
 
     public function requestPasswordReset(ResetToken $resetToken): void
     {
+        if ($this->status !== UserStatus::Active) {
+            throw new DomainException('User is not active.');
+        }
+
         if (!$this->email) {
             throw new DomainException('Email not set.');
         }
@@ -141,8 +146,37 @@ final class User
         $this->resetToken = $resetToken;
     }
 
-    public function resetPassword(Password $password): void
+    /**
+     * @throws DateMalformedStringException
+     */
+    public function resetPassword(Password $password, DateTimeImmutable $date): void
     {
+        if ($this->resetToken->isExpired($date)) {
+            throw new DomainException('Reset token is expired.');
+        }
+
+        if ($this->resetToken->isTooEarly($date)) {
+            throw new DomainException('Reset token is too early.');
+        }
+
         $this->password = $password;
+    }
+
+    public function block(): void
+    {
+        if ($this->status === UserStatus::Block) {
+            throw new DomainException('User is already blocked.');
+        }
+
+        $this->status = UserStatus::Block;
+    }
+
+    public function changeEmail(Email $newEmail): void
+    {
+        if ($this->status !== UserStatus::Active) {
+            throw new DomainException('User is not active.');
+        }
+
+        $this->email = $newEmail;
     }
 }

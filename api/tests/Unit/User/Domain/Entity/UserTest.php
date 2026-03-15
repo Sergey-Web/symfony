@@ -13,6 +13,7 @@ use App\User\Domain\ValueObject\Id;
 use App\User\Domain\ValueObject\Name;
 use App\User\Domain\ValueObject\Password;
 use App\User\Domain\ValueObject\ResetToken;
+use DateMalformedStringException;
 use DateTimeImmutable;
 use DomainException;
 use PHPUnit\Framework\TestCase;
@@ -189,6 +190,8 @@ class UserTest extends TestCase
             createdAt: $this->now,
         );
 
+        $user->confirmSignUp($confirmToken);
+
         $user->requestPasswordReset($resetToken);
 
         $this->assertSame($resetToken, $user->resetToken);
@@ -215,5 +218,120 @@ class UserTest extends TestCase
         $this->expectExceptionMessage('Email not set.');
 
         $user->requestPasswordReset($resetToken);
+    }
+
+    public function testRequestPasswordResetUserIsNotActive(): void
+    {
+        $id = Id::next();
+        $name = new Name('John', 'Doe');
+        $provider = ExternalProvider::Google;
+        $externalId = 'google-123456';
+        $resetToken = new ResetToken('reset-token', $this->now);
+        $email = new Email('test@example.com');
+
+        $user = User::signUpWithExternalProvider(
+            id: $id,
+            provider: $provider,
+            externalId: $externalId,
+            name: $name,
+            createdAt: $this->now,
+        );
+
+        $user->changeEmail($email);
+
+        $user->block();
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('User is not active.');
+
+        $user->requestPasswordReset($resetToken);
+    }
+
+    public function testRequestPasswordResetUserIsAlreadyBlocked(): void
+    {
+        $id = Id::next();
+        $email = new Email('test@example.com');
+        $name = new Name('John', 'Doe');
+        $confirmToken = ConfirmToken::generate();
+
+        $user = User::signUpWithEmail(
+            id: $id,
+            email: $email,
+            name: $name,
+            confirmToken: $confirmToken,
+            password: $this->password,
+            createdAt: $this->now,
+        );
+
+        $user->confirmSignUp($confirmToken);
+
+        $user->block();
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('User is already blocked.');
+
+        $user->block();
+    }
+
+    /**
+     * @throws DateMalformedStringException
+     */
+    public function testPasswordResetTokenIsExpired(): void
+    {
+        $id = Id::next();
+        $email = new Email('test@example.com');
+        $name = new Name('John', 'Doe');
+        $confirmToken = ConfirmToken::generate();
+        $resetToken = new ResetToken('reset-token', $this->now);
+        $requestData = $this->now->modify('+2 hour');
+
+        $user = User::signUpWithEmail(
+            id: $id,
+            email: $email,
+            name: $name,
+            confirmToken: $confirmToken,
+            password: $this->password,
+            createdAt: $this->now,
+        );
+
+        $user->confirmSignUp($confirmToken);
+
+        $user->requestPasswordReset($resetToken);
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Reset token is expired.');
+
+        $user->resetPassword($this->password, $requestData);
+    }
+
+    /**
+     * @throws DateMalformedStringException
+     */
+    public function testPasswordResetTokenIsTooEarly(): void
+    {
+        $id = Id::next();
+        $email = new Email('test@example.com');
+        $name = new Name('John', 'Doe');
+        $confirmToken = ConfirmToken::generate();
+        $resetToken = new ResetToken('reset-token', $this->now);
+        $requestData = $this->now->modify('+3 minutes');
+
+        $user = User::signUpWithEmail(
+            id: $id,
+            email: $email,
+            name: $name,
+            confirmToken: $confirmToken,
+            password: $this->password,
+            createdAt: $this->now,
+        );
+
+        $user->confirmSignUp($confirmToken);
+
+        $user->requestPasswordReset($resetToken);
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Reset token is too early.');
+
+        $user->resetPassword($this->password, $requestData);
     }
 }

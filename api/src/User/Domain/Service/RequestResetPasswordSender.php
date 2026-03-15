@@ -8,7 +8,7 @@ use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\ResetToken;
 
-interface ResetPasswordSender
+interface RequestResetPasswordSender
 {
-    public function send(Email $email): void;
+    public function send(Email $email, ResetToken $token): void;
 }

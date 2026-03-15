@@ -7,7 +7,6 @@ namespace App\User\Application\Command\SignUp\Email;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
-use App\User\Domain\Service\PasswordHasher;
 use App\User\Domain\Service\SignUpConfirmationSender;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;

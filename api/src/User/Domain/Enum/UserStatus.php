@@ -8,4 +8,5 @@ enum UserStatus: string
 {
     case Active = 'active';
     case Wait = 'wait';
+    case Block = 'block';
 }

@@ -6,9 +6,10 @@ namespace App\User\Application\Command\ResetPassword;
 
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
-use App\User\Domain\Service\SignUpConfirmationSender;
+use App\User\Domain\Service\ResetPasswordSender;
 use App\User\Domain\ValueObject\Id;
 use App\User\Domain\ValueObject\Password;
+use DateTimeImmutable;
 use DomainException;
 
 final readonly class Handler
@@ -16,7 +17,7 @@ final readonly class Handler
     public function __construct(
         private UserRepository $userRepository,
         private Flusher $flusher,
-        private SignUpConfirmationSender $signUpConfirmationSender,
+        private ResetPasswordSender $signUpConfirmationSender,
     ) {}
 
     public function handle(Command $command): void
@@ -27,6 +28,13 @@ final readonly class Handler
             throw new DomainException('User not found.');
         }
 
-        $user->resetPassword(new Password($command->password));
+        $user->resetPassword(
+            new Password($command->password),
+            new DateTimeImmutable()
+        );
+
+        $this->flusher->flush();
+
+        $this->signUpConfirmationSender->send($user->email);
     }
 }
