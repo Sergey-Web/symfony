@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\Domain\Entity;
 
 use App\User\Domain\Enum\ExternalProvider;
+use App\User\Domain\Enum\Role;
 use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
@@ -37,8 +38,11 @@ final class User
         #[ORM\Column(name: 'created_at', type: 'created_at', nullable: false)]
         private(set) DateTimeImmutable $createdAt,
 
-        #[ORM\Column(name: 'status', type: 'status', nullable: false)]
+        #[ORM\Column(name: 'status', type: 'string', nullable: false)]
         private(set) UserStatus $status,
+
+        #[ORM\Column(name: 'role', type: 'string', nullable: false)]
+        private(set) Role $role,
 
         #[ORM\OneToMany(targetEntity: UserAuthAccount::class, mappedBy: 'user')]
         private ArrayCollection $userAuthAccounts = new ArrayCollection(),
@@ -57,6 +61,7 @@ final class User
         ConfirmToken $confirmToken,
         Password $password,
         DateTimeImmutable $createdAt,
+        Role $role
     ): self
     {
         return new self(
@@ -66,6 +71,7 @@ final class User
             password: $password,
             createdAt: $createdAt,
             status: UserStatus::Wait,
+            role: $role,
             confirmToken: $confirmToken
         );
     }
@@ -75,7 +81,8 @@ final class User
         ExternalProvider $provider,
         string $externalId,
         Name $name,
-        DateTimeImmutable $createdAt
+        DateTimeImmutable $createdAt,
+        Role $role
     ): self
     {
         $user = new self(
@@ -85,6 +92,8 @@ final class User
             password: null,
             createdAt: $createdAt,
             status: UserStatus::Active,
+            role: $role
+
         );
 
         $user->attachExternalProvider($provider, $externalId, $createdAt);
@@ -178,5 +187,14 @@ final class User
         }
 
         $this->email = $newEmail;
+    }
+
+    public function changeRole(Role $role): void
+    {
+        if ($this->role === $role) {
+            throw new DomainException('This role is already assigned.');
+        }
+
+        $this->role = $role;
     }
 }

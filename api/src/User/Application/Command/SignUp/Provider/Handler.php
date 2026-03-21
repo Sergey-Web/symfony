@@ -6,6 +6,7 @@ namespace App\User\Application\Command\SignUp\Provider;
 
 use App\User\Domain\Entity\User;
 use App\User\Domain\Enum\ExternalProvider;
+use App\User\Domain\Enum\Role;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
 use App\User\Domain\ValueObject\Id;
@@ -27,6 +28,7 @@ final readonly class Handler
             externalId: $command->externalId,
             name: new Name($command->firstName, $command->lastName),
             createdAt: new DateTimeImmutable(),
+            role: Role::User
         );
 
         $this->userRepository->add($user);

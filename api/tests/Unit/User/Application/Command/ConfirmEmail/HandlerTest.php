@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\User\Application\Command\ConfirmEmail;
 
+use App\Tests\Builder\User\UserBuilder;
 use App\User\Application\Command\ConfirmEmail\Command;
 use App\User\Application\Command\ConfirmEmail\Handler;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Enum\Role;
 use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
@@ -30,7 +32,7 @@ class HandlerTest extends TestCase
         $userId = Id::fromString($userIdentity);
 
         $confirmToken = ConfirmToken::fromString($token);
-        $user = $this->makeUser($confirmToken, $userId);
+        $user = new UserBuilder(id: $userId)->viaSignUpEmail(confirmToken: $confirmToken)->build();
 
         $userRepository->expects(self::once())
             ->method('findByUserId')
@@ -125,6 +127,7 @@ class HandlerTest extends TestCase
             confirmToken: $confirmToken,
             password: new Password('password123'),
             createdAt: new DateTimeImmutable(),
+            role: Role::User,
         );
     }
 }

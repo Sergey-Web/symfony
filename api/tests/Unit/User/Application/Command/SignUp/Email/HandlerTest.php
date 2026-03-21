@@ -12,7 +12,6 @@ use App\User\Domain\Service\Flusher;
 use App\User\Domain\Service\SignUpConfirmationSender;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
-use App\User\Infrastructure\Security\NativePasswordHasher;
 use DomainException;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
