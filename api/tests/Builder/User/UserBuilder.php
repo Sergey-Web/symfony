@@ -6,7 +6,7 @@ namespace App\Tests\Builder\User;
 
 use App\User\Domain\Entity\User;
 use App\User\Domain\Enum\ExternalProvider;
-use App\User\Domain\Enum\Role;
+use App\User\Domain\Enum\UserRole;
 use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
@@ -31,17 +31,17 @@ class UserBuilder
     private bool $confirmed = false;
 
     public function __construct(
-        public ?Id $id = null,
-        public ?Name $name = null,
+        public ?Id                $id = null,
+        public ?Name              $name = null,
         public ?DateTimeImmutable $createdAt = null,
-        public ?UserStatus $status = null,
-        public ?Role $role = null,
-        public ArrayCollection $userAuthAccounts = new ArrayCollection(),
-        public ?ResetToken $resetToken = null,
+        public ?UserStatus        $status = null,
+        public ?UserRole          $role = null,
+        public ArrayCollection    $userAuthAccounts = new ArrayCollection(),
+        public ?ResetToken        $resetToken = null,
     ) {
         $this->id = $id ?? Id::next();
         $this->status = $status ?? UserStatus::Wait;
-        $this->role = $role ?? Role::User;
+        $this->role = $role ?? UserRole::User;
         $this->name = $name ?? new Name('John', 'Doe');
         $this->createdAt = $createdAt ?? new DateTimeImmutable();
 

@@ -10,6 +10,7 @@ use DateTimeImmutable;
 use Webmozart\Assert\Assert;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Embeddable]
 final readonly class ResetToken
 {
     private const int TTL = 3600;
@@ -20,7 +21,8 @@ final readonly class ResetToken
 
     /**
      * @throws DateMalformedStringException
-     */public function __construct(
+     */
+    public function __construct(
         #[ORM\Column(name: 'reset_token', type: 'string', unique: true, nullable: true)]
         private(set) string $value,
         DateTimeImmutable $expiresAt,

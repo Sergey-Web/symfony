@@ -7,6 +7,7 @@ namespace App\User\Domain\ValueObject;
 use Webmozart\Assert\Assert;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Embeddable]
 final readonly class Email
 {
     public function __construct(

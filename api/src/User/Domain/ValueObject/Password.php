@@ -6,6 +6,7 @@ namespace App\User\Domain\ValueObject;
 
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Embeddable]
 final readonly class Password
 {
     #[ORM\Column(name: 'password_hash', type: 'string', nullable: true)]

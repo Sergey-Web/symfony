@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\User\Domain\Entity;
 
 use App\User\Domain\Enum\ExternalProvider;
-use App\User\Domain\Enum\Role;
+use App\User\Domain\Enum\UserRole;
 use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
@@ -19,11 +19,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use DomainException;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'users')]
 final class User
 {
     private function __construct(
-        #[ORM\Id]
-        #[ORM\Column(type: 'uuid')]
+        #[ORM\Embedded(class: Id::class)]
         private(set) Id $id,
 
         #[ORM\Embedded(class: Email::class)]
@@ -35,16 +36,16 @@ final class User
         #[ORM\Embedded(class: Password::class)]
         private(set) ?Password $password,
 
-        #[ORM\Column(name: 'created_at', type: 'created_at', nullable: false)]
+        #[ORM\Column(name: 'created_at', type: 'datetime_immutable', nullable: false)]
         private(set) DateTimeImmutable $createdAt,
 
-        #[ORM\Column(name: 'status', type: 'string', nullable: false)]
+        #[ORM\Column(name: 'status', length: 16, nullable: false, enumType: UserStatus::class)]
         private(set) UserStatus $status,
 
-        #[ORM\Column(name: 'role', type: 'string', nullable: false)]
-        private(set) Role $role,
+        #[ORM\Column(name: 'role', length: 16, nullable: false, enumType: UserRole::class)]
+        private(set) UserRole $role,
 
-        #[ORM\OneToMany(targetEntity: UserAuthAccount::class, mappedBy: 'user')]
+        #[ORM\OneToMany(targetEntity: UserAuthAccount::class, mappedBy: 'user', cascade: ['persist'])]
         private ArrayCollection $userAuthAccounts = new ArrayCollection(),
 
         #[ORM\Embedded(class: ConfirmToken::class)]
@@ -61,7 +62,7 @@ final class User
         ConfirmToken $confirmToken,
         Password $password,
         DateTimeImmutable $createdAt,
-        Role $role
+        UserRole $role
     ): self
     {
         return new self(
@@ -82,7 +83,7 @@ final class User
         string $externalId,
         Name $name,
         DateTimeImmutable $createdAt,
-        Role $role
+        UserRole $role
     ): self
     {
         $user = new self(
@@ -189,7 +190,7 @@ final class User
         $this->email = $newEmail;
     }
 
-    public function changeRole(Role $role): void
+    public function changeRole(UserRole $role): void
     {
         if ($this->role === $role) {
             throw new DomainException('This role is already assigned.');

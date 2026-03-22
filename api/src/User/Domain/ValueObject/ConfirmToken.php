@@ -8,6 +8,7 @@ use DomainException;
 use Ramsey\Uuid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Embeddable]
 final readonly class ConfirmToken
 {
     #[ORM\Column(name: 'confirm_token', type: 'string', unique: true, nullable: true)]

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Application\Command\Role;
 
-use App\User\Domain\Enum\Role;
+use App\User\Domain\Enum\UserRole;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
 use App\User\Domain\ValueObject\Id;
@@ -25,7 +25,7 @@ final readonly class Handler
             throw new DomainException('User not found.');
         }
 
-        $user->changeRole(Role::fromValue($command->role));
+        $user->changeRole(UserRole::fromValue($command->role));
 
         $this->flusher->flush();
 

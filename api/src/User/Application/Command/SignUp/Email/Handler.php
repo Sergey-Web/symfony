@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\User\Application\Command\SignUp\Email;
 
 use App\User\Domain\Entity\User;
-use App\User\Domain\Enum\Role;
+use App\User\Domain\Enum\UserRole;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
 use App\User\Domain\Service\SignUpConfirmationSender;
@@ -40,7 +40,7 @@ final readonly class Handler
             confirmToken: ConfirmToken::generate(),
             password: new Password($command->password),
             createdAt: new DateTimeImmutable(),
-            role: Role::User
+            role: UserRole::User
         );
 
         $this->userRepository->add($user);

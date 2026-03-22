@@ -6,9 +6,13 @@ namespace App\User\Domain\ValueObject;
 
 use DomainException;
 use Ramsey\Uuid\Uuid;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Embeddable]
 final readonly class Id
 {
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid')]
     public string $value;
 
     private function __construct(string $value)

@@ -4,7 +4,7 @@ namespace App\User\Domain\Enum;
 
 use InvalidArgumentException;
 
-enum Role: string
+enum UserRole: string
 {
     case User = 'ROLE_USER';
 

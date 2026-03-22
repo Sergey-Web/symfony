@@ -8,7 +8,7 @@ use App\Tests\Builder\User\UserBuilder;
 use App\User\Application\Command\ConfirmEmail\Command;
 use App\User\Application\Command\ConfirmEmail\Handler;
 use App\User\Domain\Entity\User;
-use App\User\Domain\Enum\Role;
+use App\User\Domain\Enum\UserRole;
 use App\User\Domain\Enum\UserStatus;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
@@ -127,7 +127,7 @@ class HandlerTest extends TestCase
             confirmToken: $confirmToken,
             password: new Password('password123'),
             createdAt: new DateTimeImmutable(),
-            role: Role::User,
+            role: UserRole::User,
         );
     }
 }
