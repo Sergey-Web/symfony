@@ -31,3 +31,9 @@ xdebug-on:
 xdebug-off:
 	echo "; xdebug disabled" > docker/dev/php/conf.d/docker-php-ext-xdebug.ini
 	docker compose restart php-fpm php-cli
+
+cache-clear:
+	$(DOCKER_COMPOSE) run --rm php-cli sh -c "php bin/console cache:clear && php bin/console doctrine:cache:clear-metadata && php bin/console doctrine:cache:clear-query && php bin/console doctrine:cache:clear-result"
+
+migrate:
+	$(DOCKER_COMPOSE) run --rm php-cli php bin/console doctrine:migrations:migrate -n

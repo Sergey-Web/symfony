@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\User\Infrastructure;
+namespace App\User\Infrastructure\Repository;
 
 use App\User\Domain\Entity\User;
 use App\User\Domain\Entity\UserAuthAccount;
 use App\User\Domain\Enum\ExternalProvider;
-use App\User\Domain\Repository\UserRepository;
+use App\User\Domain\Repository\UserRepository as UserRepositoryInterface;
 use App\User\Domain\ValueObject\ConfirmToken;
 use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\Id;
 use Doctrine\ORM\EntityManagerInterface;
 
-final readonly class DoctrineUserRepository implements UserRepository
+final readonly class UserRepository implements UserRepositoryInterface
 {
     public function __construct(private EntityManagerInterface $em) {}
 

@@ -23,17 +23,20 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'users')]
 final class User
 {
-    private function __construct(
-        #[ORM\Embedded(class: Id::class)]
-        private(set) Id $id,
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid')]
+    private(set) string $id;
 
-        #[ORM\Embedded(class: Email::class)]
+    private function __construct(
+        Id $id,
+
+        #[ORM\Embedded(class: Email::class, columnPrefix: false)]
         private(set) ?Email $email,
 
-        #[ORM\Embedded(class: Name::class)]
+        #[ORM\Embedded(class: Name::class, columnPrefix: false)]
         private(set) Name $name,
 
-        #[ORM\Embedded(class: Password::class)]
+        #[ORM\Embedded(class: Password::class, columnPrefix: false)]
         private(set) ?Password $password,
 
         #[ORM\Column(name: 'created_at', type: 'datetime_immutable', nullable: false)]
@@ -45,15 +48,17 @@ final class User
         #[ORM\Column(name: 'role', length: 16, nullable: false, enumType: UserRole::class)]
         private(set) UserRole $role,
 
-        #[ORM\OneToMany(targetEntity: UserAuthAccount::class, mappedBy: 'user', cascade: ['persist'])]
+        #[ORM\OneToMany(targetEntity: UserAuthAccount::class, mappedBy: 'user', cascade: ['persist'], orphanRemoval: true)]
         private ArrayCollection $userAuthAccounts = new ArrayCollection(),
 
-        #[ORM\Embedded(class: ConfirmToken::class)]
+        #[ORM\Embedded(class: ConfirmToken::class, columnPrefix: false)]
         private(set) ?ConfirmToken $confirmToken = null,
 
-        #[ORM\Embedded(class: ResetToken::class)]
+        #[ORM\Embedded(class: ResetToken::class, columnPrefix: false)]
         private(set) ?ResetToken $resetToken = null,
-    ) {}
+    ) {
+        $this->id = $id->value;
+    }
 
     public static function signUpWithEmail(
         Id $id,

@@ -31,13 +31,13 @@ class UserBuilder
     private bool $confirmed = false;
 
     public function __construct(
-        public ?Id                $id = null,
-        public ?Name              $name = null,
+        public ?Id $id = null,
+        public ?Name $name = null,
         public ?DateTimeImmutable $createdAt = null,
-        public ?UserStatus        $status = null,
-        public ?UserRole          $role = null,
-        public ArrayCollection    $userAuthAccounts = new ArrayCollection(),
-        public ?ResetToken        $resetToken = null,
+        public ?UserStatus $status = null,
+        public ?UserRole $role = null,
+        public ArrayCollection $userAuthAccounts = new ArrayCollection(),
+        public ?ResetToken $resetToken = null,
     ) {
         $this->id = $id ?? Id::next();
         $this->status = $status ?? UserStatus::Wait;

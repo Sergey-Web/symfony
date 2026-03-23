@@ -24,11 +24,11 @@ class HandlerTest extends TestCase
         $userRepository
             ->expects(self::once())
             ->method('findByUserId')
-            ->with($user->id)
+            ->with(Id::fromString($user->id))
             ->willReturn($user);
 
         $flusher->expects(self::once())->method('flush');
-        $command = new Command($user->id->value, 'ROLE_ADMIN');
+        $command = new Command($user->id, 'ROLE_ADMIN');
 
         new Handler($userRepository, $flusher)->handle($command);
     }

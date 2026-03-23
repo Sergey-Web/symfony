@@ -37,7 +37,7 @@ class UserTest extends TestCase
             confirmToken: $confirmToken
         )->build();
 
-        $this->assertSame($id, $user->id);
+        $this->assertSame($id->value, $user->id);
         $this->assertSame($email, $user->email);
         $this->assertSame($name, $user->name);
         $this->assertSame($password, $user->password);
@@ -65,7 +65,7 @@ class UserTest extends TestCase
             externalProviderId: $externalId
         )->build();
 
-        $this->assertSame($id, $user->id);
+        $this->assertSame($id->value, $user->id);
         $this->assertSame(null, $user->email);
         $this->assertSame($name, $user->name);
         $this->assertSame(null, $user->password);

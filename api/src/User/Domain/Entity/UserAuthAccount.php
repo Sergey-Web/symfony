@@ -7,12 +7,14 @@ namespace App\User\Domain\Entity;
 use App\User\Domain\Enum\ExternalProvider;
 use App\User\Domain\ValueObject\Id;
 use DateTimeImmutable;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Types;
 use DomainException;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'user_auth_accounts')]
+#[ORM\UniqueConstraint(name: 'user_provider_unique', columns: ['user_id', 'provider'])]
 final class UserAuthAccount
 {
     #[ORM\Id]

@@ -7,7 +7,6 @@ namespace App\User\Application\Command\RequestPasswordReset;
 use App\User\Domain\Repository\UserRepository;
 use App\User\Domain\Service\Flusher;
 use App\User\Domain\Service\RequestResetPasswordSender;
-use App\User\Domain\Service\SignUpConfirmationSender;
 use App\User\Domain\ValueObject\Email;
 use App\User\Domain\ValueObject\ResetToken;
 use DateMalformedStringException;
