@@ -10,14 +10,14 @@ use Doctrine\ORM\Mapping as ORM;
 final readonly class Password
 {
     #[ORM\Column(name: 'password_hash', type: 'string', nullable: true)]
-    private(set) string $hash;
+    private(set) string $value;
 
     public function __construct(
         string $password,
     ) {
         self::validate($password);
 
-        $this->hash = password_hash($password, PASSWORD_DEFAULT);
+        $this->value = $password;
     }
 
     private static function validate(string $value): void
@@ -29,6 +29,6 @@ final readonly class Password
 
     public function verify(string $password): bool
     {
-        return password_verify($password, $this->hash);
+        return password_verify($password, $this->value);
     }
 }

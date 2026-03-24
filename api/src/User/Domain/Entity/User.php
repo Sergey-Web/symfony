@@ -18,10 +18,11 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use DomainException;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
-final class User
+final class User implements PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
@@ -202,5 +203,10 @@ final class User
         }
 
         $this->role = $role;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password->value;
     }
 }
